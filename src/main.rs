@@ -1,7 +1,9 @@
 extern crate rand;
+extern crate num_traits;
 
 pub mod types;
 pub mod kd_tree;
+pub mod priority_queue;
 
 use std::time::Instant;
 use crate::types::Location;
@@ -50,6 +52,8 @@ mod test {
     use rand::prelude::*;
     use std::time::Instant;
     use std::time::Duration;
+    use super::types::PriorityItem;
+    use std::collections::BinaryHeap;
 
     #[test]
     fn test1() {
@@ -150,6 +154,30 @@ mod test {
 
         let elapsed2 = start2.elapsed();
         println!("brute force {}times Elapsed: {} ms", loop_cnt, (elapsed2.as_secs() * 1_000) + (elapsed2.subsec_nanos() / 1_000_000) as u64);
+    }
 
+
+
+    #[test]
+    fn test4() {
+        let mut heap = BinaryHeap::new();
+
+        for i in 0..20 {
+            heap.push(PriorityItem::new(i as usize, 1.0 + (i as f64) / 10.0));
+            heap.push(PriorityItem::new(i as usize, 1.0 + (i as f64) / 10.0));
+        }
+//        heap.push(PriorityItem::new(0, 1.0));
+//        heap.push(PriorityItem::new(0, 2.0));
+//        heap.push(PriorityItem::new(0, 3.0));
+//        heap.push(PriorityItem::new(0, 1.1));
+//        heap.push(PriorityItem::new(0, 1.9));
+//        heap.push(PriorityItem::new(0, 2.5));
+//        heap.push(PriorityItem::new(0, 2.5));
+
+        println!("{:?}", heap);
+        println!("{:?}", heap.pop());
+        println!("{:?}", heap.pop());
+        println!("{:?}", heap.pop());
+        println!("{:?}", heap.into_sorted_vec());
     }
 }
