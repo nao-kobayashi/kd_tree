@@ -1,8 +1,9 @@
 [package]
 name = "kd_tree"
 version = "0.1.0"
-authors = [""]
+authors = ["kobayashi@kouei.co.jp <kobayashi@kouei.co.jp>"]
 edition = "2018"
 
 [dependencies]
 rand = "0.5"
+num-traits = "0.2"
