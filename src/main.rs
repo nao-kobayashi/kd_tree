@@ -1,5 +1,4 @@
 extern crate rand;
-extern crate num_traits;
 
 pub mod types;
 pub mod kd_tree;
@@ -52,7 +51,7 @@ mod test {
     use rand::prelude::*;
     use std::time::Instant;
     use std::time::Duration;
-    use super::types::PriorityItem;
+    use super::types::PrioritySortableItem;
     use std::collections::BinaryHeap;
 
     #[test]
@@ -163,8 +162,8 @@ mod test {
         let mut heap = BinaryHeap::new();
 
         for i in 0..20 {
-            heap.push(PriorityItem::new(i as usize, 1.0 + (i as f64) / 10.0));
-            heap.push(PriorityItem::new(i as usize, 1.0 + (i as f64) / 10.0));
+            heap.push(PrioritySortableItem::new(i as usize, 1.0 + (i as f64) / 10.0));
+            heap.push(PrioritySortableItem::new(i as usize, 1.0 + (i as f64) / 10.0));
         }
 //        heap.push(PriorityItem::new(0, 1.0));
 //        heap.push(PriorityItem::new(0, 2.0));
@@ -179,5 +178,35 @@ mod test {
         println!("{:?}", heap.pop());
         println!("{:?}", heap.pop());
         println!("{:?}", heap.into_sorted_vec());
+    }
+
+    #[test]
+    fn test5() {
+        let points = vec![
+            Location::new(0, "a".to_string(), 100, 100, 100.0, 100.0),
+            Location::new(1, "b".to_string(), 1, 1, 1.0, 1.0),
+            Location::new(2, "c".to_string(), 50, 50, 50.0, 40.0),
+            Location::new(3, "c".to_string(), 51, 41, 51.0, 41.0),
+            Location::new(4, "c".to_string(), 52, 43, 52.0, 43.0),
+            Location::new(5, "d".to_string(), 60, 70,60.0, 70.0),
+            Location::new(100, "target".to_string(), 53, 44, 53.0, 44.0)
+        ];
+
+        let count = points.len();
+        let target = Location::new(4, "c".to_string(), 52, 42, 52.0, 42.5);
+        let mut kd = KdTree::new(points);
+        kd.sort(0, count, 0);
+        let (index, dist) = kd.search_nn(&target);
+        println!("index:{:?}", index);
+        println!("distance:{:?}", dist);
+        println!("location:{:?}", kd.get_location(index));
+
+        let v = kd.search_nn_range(&target, 2);
+        println!("index:{:?}", v);
+
+        v.iter().for_each(|(i, d)| {
+                println!("location:{:?}", kd.get_location(*i));
+            });
+
     }
 }

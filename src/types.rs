@@ -1,5 +1,4 @@
 use std::cmp::{ Ordering, PartialEq };
-use num_traits::{Num, NumCast};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Location {
@@ -44,33 +43,33 @@ impl Location {
 }
 
 #[derive(Debug, Clone)]
-pub struct PriorityItem<T> {
+pub struct PrioritySortableItem<T> {
     pub element: usize,
     pub priority: T
 }
 
-impl<T> PriorityItem<T> {
+impl<T> PrioritySortableItem<T> {
     pub fn new(element: usize, priority: T) -> Self {
-        PriorityItem { element, priority }
+        PrioritySortableItem { element, priority }
     }
 }
 
-impl<T> PartialOrd<PriorityItem<T>> for PriorityItem<T> where T: PartialOrd {
+impl<T> PartialOrd<PrioritySortableItem<T>> for PrioritySortableItem<T> where T: PartialOrd {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.priority.partial_cmp(&other.priority)
     }
 }
 
-impl<T> PartialEq<PriorityItem<T>> for PriorityItem<T> where T: PartialOrd {
+impl<T> PartialEq<PrioritySortableItem<T>> for PrioritySortableItem<T> where T: PartialOrd {
     fn eq(&self, other: &Self) -> bool {
         self.priority == other.priority
     }
 }
 
-impl<T> Ord for PriorityItem<T> where T: PartialOrd {
+impl<T> Ord for PrioritySortableItem<T> where T: PartialOrd {
     fn cmp(&self, other: &Self) -> Ordering {
         other.priority.partial_cmp(&self.priority).unwrap()
     }
 }
 
-impl<T> Eq for PriorityItem<T> where T: PartialOrd {}
+impl<T> Eq for PrioritySortableItem<T> where T: PartialOrd {}

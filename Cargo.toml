@@ -6,4 +6,3 @@ edition = "2018"
 
 [dependencies]
 rand = "0.5"
-num-traits = "0.2"
