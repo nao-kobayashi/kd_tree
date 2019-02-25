@@ -35,8 +35,11 @@ impl<T> MinPriorityQueue<T> where T: Clone + PartialOrd {
         &self.min
     }
 
+    pub fn get_max_priority(&self) -> &T {
+        &self.elements.peek().unwrap().priority
+    }
+
     pub fn get_min_value(self) -> Vec<PrioritySortableItem<T>> {
-        println!("{:?}", self.elements.len());
         self.elements.into_sorted_vec()
     }
 }

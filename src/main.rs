@@ -5,38 +5,35 @@ pub mod kd_tree;
 pub mod priority_queue;
 
 use std::time::Instant;
-use crate::types::Location;
+use crate::types::{ Location, Point };
 use crate::kd_tree::KdTree;
 
 fn main() {
     let start = Instant::now();
-    let mut points = Vec::new();
+    let mut locactions = Vec::new();
     let address = std::fs::read_to_string("./address.csv").unwrap();
     for (i, line) in address.split("\r\n").enumerate() {
         let v = line.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
         if v.len() > 6 {
             let x = (v[5].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
             let y = (v[6].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-            points.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
+            locactions.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
         }
     }
 
     let mut tracking = Vec::new();
     let person = std::fs::read_to_string("./1126.csv").unwrap();
-    for (i, line) in person.split("\r\n").enumerate() {
+    for (_i, line) in person.split("\r\n").enumerate() {
         let v = line.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
         if v.len() > 5 {
-            let x = (v[3].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-            let y = (v[2].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-            tracking.push(Location::new(i as u32, i.to_string(), x, y, v[3].parse::<f64>().unwrap(), v[2].parse::<f64>().unwrap()));
+            tracking.push(Point::new(v[3].parse::<f64>().unwrap(), v[2].parse::<f64>().unwrap()));
         }
     }
 
-    let count = points.len();
-    let mut kd = KdTree::new(points);
-    kd.sort(0, count, 0);
+    let mut kd = KdTree::new(&locactions);
+    kd.sort(0, locactions.len(), 0);
     for t in tracking.iter() {
-        let ans = kd.search_nn(&t);
+        let ans = kd.search_nn(t);
         let loc = kd.get_location(ans.0);
         println!("location:{} {} {} tracking_lng:{} tracking_lat:{}  {:?}", loc.name, loc.lng, loc.lat, t.lng, t.lat, ans);
     }
@@ -53,26 +50,26 @@ mod test {
     use std::time::Duration;
     use super::types::PrioritySortableItem;
     use std::collections::BinaryHeap;
+    use crate::types::{ Location, Point, LngLat };
 
     #[test]
     fn test1() {
-        let mut points = Vec::new();
+        let mut locactions = Vec::new();
         let address = std::fs::read_to_string("./address.csv").unwrap();
         for (i, line) in address.split("\r\n").enumerate() {
             let v = line.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
             if v.len() > 6 {
                 let x = (v[5].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
                 let y = (v[6].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-                points.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
+                locactions.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
             }
         }
 
-        let count = points.len();
-        let mut kd = KdTree::new(points.clone());
-        kd.sort(0, count, 0);
+        let mut kd = KdTree::new(&locactions);
+        kd.sort(0, locactions.len(), 0);
 
         let test = Location::new(1, "a".to_string(), 141021795, 38732815, 141.02179528, 38.7328159);
-        points.iter().for_each(|p| println!("calc: {:?}  location:{:?}", p.distance_to(&test), p));
+        locactions.iter().for_each(|p| println!("calc: {:?}  location:{:?}", p.distance_to(&test), p));
     }
 
 
@@ -85,25 +82,23 @@ mod test {
 
     #[test]
     fn test3() {
-        let mut points = Vec::new();
+        let mut locactions = Vec::new();
         let address = std::fs::read_to_string("./address.csv").unwrap();
         for (i, line) in address.split("\r\n").enumerate() {
             let v = line.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
             if v.len() > 6 {
                 let x = (v[5].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
                 let y = (v[6].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-                points.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
+                locactions.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
             }
         }
 
         let mut tracking = Vec::new();
         let person = std::fs::read_to_string("./1126.csv").unwrap();
-        for (i, line) in person.split("\r\n").enumerate() {
+        for (_i, line) in person.split("\r\n").enumerate() {
             let v = line.split(",").map(|s| s.to_string()).collect::<Vec<String>>();
             if v.len() > 5 {
-                let x = (v[3].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-                let y = (v[2].parse::<f64>().unwrap() * 1000000.0).floor() as i32;
-                tracking.push(Location::new(i as u32, i.to_string(), x, y, v[3].parse::<f64>().unwrap(), v[2].parse::<f64>().unwrap()));
+                tracking.push(Point::new(v[3].parse::<f64>().unwrap(), v[2].parse::<f64>().unwrap()));
             }
         }
 
@@ -111,17 +106,16 @@ mod test {
         let mut rng = thread_rng();
 
         let start = Instant::now();
-        let count = points.len();
-        let mut kd = KdTree::new(points.clone());
-        kd.sort(0, count, 0);
+        let mut kd = KdTree::new(&locactions);
+        kd.sort(0, locactions.len(), 0);
 
 
         let test_data = (0..loop_cnt)
             .map(|_| rng.choose(tracking.as_slice()).unwrap())
-            .collect::<Vec<&Location>>();
+            .collect::<Vec<&Point>>();
 
         for t in test_data.iter() {
-            let (index, distance) = kd.search_nn(t);
+            let (index, distance) = kd.search_nn(*t);
             let loc = kd.get_location(index);
             println!("location:{} {} {} tracking_lng:{} tracking_lat:{}  {:?}", loc.name, loc.lng, loc.lat, t.lng, t.lat, distance);
         }
@@ -136,7 +130,7 @@ mod test {
             let mut min_distance = std::f64::MAX;
             //let t = rng.choose(tracking.as_slice()).unwrap();
 
-            points.iter()
+            locactions.iter()
                 .enumerate()
                 .for_each(|(i, p)| {
                     let dist = t.distance_to(p);
@@ -146,7 +140,7 @@ mod test {
                     }
                 });
 
-            let loc = points.get(min_index).unwrap();
+            let loc = locactions.get(min_index).unwrap();
 
             println!("location:{} {} {} tracking_lng:{} tracking_lat:{}  {:?}", loc.name, loc.lng, loc.lat, t.lng, t.lat, min_distance);
         }
@@ -182,7 +176,7 @@ mod test {
 
     #[test]
     fn test5() {
-        let points = vec![
+        let locactions = vec![
             Location::new(0, "a".to_string(), 100, 100, 100.0, 100.0),
             Location::new(1, "b".to_string(), 1, 1, 1.0, 1.0),
             Location::new(2, "c".to_string(), 50, 50, 50.0, 40.0),
@@ -192,19 +186,18 @@ mod test {
             Location::new(100, "target".to_string(), 53, 44, 53.0, 44.0)
         ];
 
-        let count = points.len();
         let target = Location::new(4, "c".to_string(), 52, 42, 52.0, 42.5);
-        let mut kd = KdTree::new(points);
-        kd.sort(0, count, 0);
+        let mut kd = KdTree::new(&locactions);
+        kd.sort(0, locactions.len(), 0);
         let (index, dist) = kd.search_nn(&target);
         println!("index:{:?}", index);
         println!("distance:{:?}", dist);
         println!("location:{:?}", kd.get_location(index));
 
-        let v = kd.search_nn_range(&target, 2);
+        let v = kd.search_top_nn(&target, 2);
         println!("index:{:?}", v);
 
-        v.iter().for_each(|(i, d)| {
+        v.iter().for_each(|(i, _d)| {
                 println!("location:{:?}", kd.get_location(*i));
             });
 
