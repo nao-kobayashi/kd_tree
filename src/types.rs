@@ -121,7 +121,7 @@ impl<T> PartialEq<PrioritySortableItem<T>> for PrioritySortableItem<T> where T: 
 
 impl<T> Ord for PrioritySortableItem<T> where T: PartialOrd {
     fn cmp(&self, other: &Self) -> Ordering {
-        other.priority.partial_cmp(&self.priority).unwrap()
+        self.priority.partial_cmp(&other.priority).unwrap()
     }
 }
 
