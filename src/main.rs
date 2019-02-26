@@ -30,8 +30,7 @@ fn main() {
         }
     }
 
-    let mut kd = KdTree::new(&locactions);
-    kd.sort(0, locactions.len(), 0);
+    let kd = KdTree::new(&locactions);
     for t in tracking.iter() {
         let ans = kd.search_nn(t);
         let loc = kd.get_location(ans.0);
@@ -64,9 +63,6 @@ mod test {
                 locactions.push(Location::new(i as u32, v[1].to_string(), x, y, v[5].parse::<f64>().unwrap(), v[6].parse::<f64>().unwrap()));
             }
         }
-
-        let mut kd = KdTree::new(&locactions);
-        kd.sort(0, locactions.len(), 0);
 
         let test = Location::new(1, "a".to_string(), 141021795, 38732815, 141.02179528, 38.7328159);
         locactions.iter().for_each(|p| println!("calc: {:?}  location:{:?}", p.distance_to(&test), p));
@@ -106,8 +102,7 @@ mod test {
         let mut rng = thread_rng();
 
         let start = Instant::now();
-        let mut kd = KdTree::new(&locactions);
-        kd.sort(0, locactions.len(), 0);
+        let kd = KdTree::new(&locactions);
 
 
         let test_data = (0..loop_cnt)
@@ -187,8 +182,7 @@ mod test {
         ];
 
         let target = Location::new(4, "c".to_string(), 52, 42, 52.0, 42.5);
-        let mut kd = KdTree::new(&locactions);
-        kd.sort(0, locactions.len(), 0);
+        let kd = KdTree::new(&locactions);
         let (index, dist) = kd.search_nn(&target);
         println!("index:{:?}", index);
         println!("distance:{:?}", dist);
@@ -200,6 +194,20 @@ mod test {
         v.iter().for_each(|(i, _d)| {
                 println!("location:{:?}", kd.get_location(*i));
             });
+
+    }
+
+    #[test]
+    fn test6() {
+        let a = PrioritySortableItem::new(0, 10.1);
+        let b = PrioritySortableItem::new(0, 10.2);
+        let c = PrioritySortableItem::new(0, 10.1);
+
+        println!("{:?}", a.partial_cmp(&b));
+        println!("{:?}", a.cmp(&b));
+
+        println!("{:?}", a.partial_cmp(&c));
+        println!("{:?}", a.cmp(&c));
 
     }
 }

@@ -16,13 +16,16 @@ impl<'a, T> KdTree<'a, T> where T: LngLat {
             .enumerate()
             .for_each(|(i, _p)| indexes.push(i));
 
-        KdTree {
+        let mut kd = KdTree {
             locations,
             indexes,
-        }
+        };
+
+        kd.sort(0, locations.len(), 0);
+        kd
     }
 
-    pub fn sort(&mut self, from: usize, count: usize, mut axis: i32) {
+    fn sort(&mut self, from: usize, count: usize, mut axis: i32) {
         axis %= K;
 
         if count > 1 {
